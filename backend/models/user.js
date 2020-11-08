@@ -1,65 +1,80 @@
-User.findOne(body.id, user => {
-    user.firstName = body.firstName;
-    user.update();
-  });
-  
-  
-  class User {
+const mysql = require('mysql');
+const db = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'adem',
+    password : 'adem13200',
+    database : 'groupomania'
+});
+
+class User {
     constructor(email, password, firstName, lastName, id) {
-      this.id = id || null;
-      this.email = email;
-      this.password = password;
-      this.firstName = firstName;
-      this.lastName = lastName;
+        this.id = id || null;
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName
     }
-    
-    static findOne(id, callback) {
-      connection.query("SELECT * FROM user WHERE id = ?", [id], (err, result) => {
-          if (err){
-            throw err;
-          }
-        
-          callback(new User(result.email, result.password, result.first_name, result.last_name, result.id));
-      })
+
+    static findOne(id) {
+        return new Promise((resolve, reject) => {
+            db.query("SELECT * FROM user WHERE id = ?", [id], (err, result) => {
+                if (err){
+                    return reject(err)
+                }
+                resolve(new User(result.email, result.password, result.first_name, result.last_name, result.id));
+            })
+        })
     }
-    
+
     save() {
-      connection.query(
-        "INSERT INTO user SET email = ?, password = ?, first_name = ?, last_name = ?",
-        [this.email, this.password, this.firstName, this.lastName],
-        err => {
-          if (err){
-            throw err;
-          }
-          
-          connection.query("SELECT LAST_INSERT_ID()", [], (err, res) => {
-            if (err) {
-              throw err;
-            }
-            
-            this.id = res;
-          })
-        }
-      )
-    }
+
+        return new Promise((resolve, reject) => {
+            let user = [this.email, this.password, this.firstName, this.lastName];
+            let sql = "INSERT INTO user SET email = ?, password = ?, first_name = ?, last_name = ?"
+            db.query(sql, user, (err, result) => {
+                    console.log("reussite")
+                    if (err) {
+                        return reject(err)
+                    }else{
+                        db.query("SELECT LAST_INSERT_ID()", [], (err, res) => {
+                            if (err) {
+                                return reject(err)
+                            }else{
+                                this.id = res;
+                                return resolve()
+                            }
+                        })
+                    }
+                })
+        })
+
+    };
     
+    /*
     delete() {
-      connection.query(
-        "DELETE FROM user WHERE id = ?",
-        [this.id],
-        err => {
-          if (err) throw err;
-        }
-      )
-    }
-    
+        connection.query(
+            "DELETE FROM user WHERE id = ?",
+            [this.id],
+            err => {
+                if (err) throw err;
+            }
+        )
+    };
+    */
+
     update() {
-      connection.query(
-        "UPDATE user SET email = ?, password = ?, first_name = ?, last_name = ? WHERE id = ?",
-        [this.email, this.password, this.firstName, this.lastName, this.id],
-        err => {
-          if (err) throw err;
-        }
-      )
-    }
-  }
+        return new Promise((resolve, reject) => {
+            let sql = "UPDATE user SET email = ?, password = ?, first_name = ?, last_name = ? WHERE id = ?";
+            let user = [this.email, this.password, this.firstName, this.lastName, this.id];
+
+            db.query(sql,user, err => {
+                if (err) {
+                    return reject(err)
+                }
+            })   
+        })
+    };
+}
+
+module.exports = User
+
