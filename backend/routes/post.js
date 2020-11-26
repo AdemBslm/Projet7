@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
+const auth = require("../middleware/auth")
+
 const postCtrl = require('../controllers/post');
 
-router.post('/', postCtrl.createPublication);
+router.post('/', auth, postCtrl.createPublication);
 router.get('/', postCtrl.getAllPublication);
 router.get('/:id', postCtrl.getOnePublication);
 router.delete('/:id', postCtrl.deletePublication);
