@@ -6,14 +6,12 @@ const fs = require('fs');
 exports.signup = (req, res, next) => {
     bcrypt.hash(req.body.password, 10)
         .then((hash) => {
-            console.log("test")
             let user = new User(
                 req.body.email,
                 hash,
                 req.body.firstName,
                 req.body.lastName
             );
-            console.log("test 2")
             user.save()
                 .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
                 .catch(error => res.status(400).json({ error }));
