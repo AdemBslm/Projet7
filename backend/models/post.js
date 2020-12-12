@@ -12,7 +12,7 @@ class Post {
 
     static find() {
         return new Promise((resolve, reject) => {
-            db.query("SELECT * FROM post", (err, result) => {
+            db.query("SELECT post.*, user.first_name AS first_name_user, user.last_name AS last_name_user, user.avatar AS avatar_user FROM post INNER JOIN user ON post.user_id = user.id", (err, result) => {
                 if (err){
                     console.log(err)
                     return reject(err)
@@ -20,18 +20,30 @@ class Post {
                 console.log(result)
                 resolve(result);
 
-            }) 
+            })  
         })
     } 
- 
-    static findOneById(req) {
+    
+    static getOnePostById(id) {
         return new Promise((resolve, reject) => {
-            db.query("SELECT * FROM post WHERE id = ?", [req.params.id], (err, result) => {
+            db.query("SELECT post.*, user.first_name AS first_name_user, user.last_name AS last_name_user, user.avatar AS avatar_user FROM post INNER JOIN user ON post.user_id = user.id WHERE post.id = ?", [id], (err, result) => {
                 if (err){
                     console.log(err)
                     return reject(err)
                 }
-                console.log(result[0])
+                resolve(result[0]);
+
+            }) 
+        })
+    }
+
+    static findOneById(id) {
+        return new Promise((resolve, reject) => {
+            db.query("SELECT * FROM post WHERE post.id = ?", [id], (err, result) => {
+                if (err){
+                    console.log(err)
+                    return reject(err)
+                }
                 resolve(new Post(result[0].post, result[0].image, result[0].date, result[0].user_id, result[0].id));
 
             }) 
@@ -60,10 +72,7 @@ class Post {
     };
     
     delete() {
-        console.log("test")
         return new Promise((resolve, reject) => {
-            console.log("test delete")
-            console.log(this.id)
             let sql = "DELETE FROM post WHERE id = ?";
             let id = [this.id]
 
@@ -74,6 +83,26 @@ class Post {
                 return resolve()
             })
         }) 
+    };
+
+    //dislike represente la suppression du like.
+    dislike() {
+        
+    };
+
+    like() {
+        return new Promise((resolve, reject) => {
+            let like = [req.body.user_id, req.params.id];
+            let sql = "INSERT INTO likes SET user_id = ?, post_id = ? WHERE NOT EXISTS (SELECT * FROM likes WHERE INSERT user_id = ?, post_id = ? )"
+
+            db.query(sql, like, err => {
+                if (err) {
+                    return reject(err)
+                }else{
+                    return resolve()
+                }
+            })
+        })    
     };
 }
 

@@ -9,15 +9,14 @@ class Comment {
         this.post_id = post_id || null;
         this.user_id = user_id || null
     }
-
-    static find() {
+ 
+    static find(post_id) {
         return new Promise((resolve, reject) => {
-            db.query("SELECT * FROM comment", (err, result) => {
+            db.query("SELECT comment.*, user.first_name AS first_name_user, user.last_name AS last_name_user, user.avatar AS avatar_user FROM comment INNER JOIN user ON comment.user_id = user.id WHERE post_id = ?",[post_id], (err, result) => {
                 if (err){
                     console.log(err)
                     return reject(err)
                 }
-                console.log(result)
                 resolve(result);
 
             }) 
@@ -31,7 +30,6 @@ class Comment {
                     console.log(err)
                     return reject(err)
                 }
-                console.log(result[0])
                 resolve(new Comment(result[0].comment, result[0].date, result[0].post_id, result[0].user_id, result[0].id));
 
             }) 
@@ -42,6 +40,7 @@ class Comment {
         return new Promise((resolve, reject) => {
             let post = [this.comment, this.post_id, this.user_id];
             let sql = "INSERT INTO comment SET comment = ?, date = NOW(), post_id = ?, user_id = ?"
+
             db.query(sql, post, err => {
                     if (err) {
                         return reject(err)

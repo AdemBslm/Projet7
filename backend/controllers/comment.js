@@ -1,13 +1,14 @@
 const Comment = require('../models/comment');
+const jwt = require('jsonwebtoken');
 
 exports.createComment = (req, res, next) => {
-    const post_id = req.query.post_id
-    const user_id = req.query.user_id
+    const post_id = req.params.post_id
+
     const comment = new Comment(
         req.body.comment,
         null,
         post_id,
-        user_id,
+        req.body.user_id,
         null
     );
     comment.save()
@@ -16,13 +17,13 @@ exports.createComment = (req, res, next) => {
 };
  
 exports.getAllComment = (req, res, next) => {
-    Comment.find()  
+    Comment.find(req.params.post_id)  
         .then(comments => res.status(200).json(comments))
         .catch(error => res.status(400).json({error: error}));
 };
 
 exports.deleteComment = (req, res, next) => {
-    Comment.findOneById(req)
+    Comment.findOneById(req.params.id)
         .then(comment => {
             comment.delete()
                 .then(() => res.status(200).json({message: "Deleted !"}))

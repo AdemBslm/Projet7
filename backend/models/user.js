@@ -18,7 +18,6 @@ class User {
                     console.log(err)
                     return reject(err)
                 }
-                console.log(result[0])
                 resolve(new User(result[0].email, result[0].password, result[0].first_name, result[0].last_name, result[0].avatar, result[0].id));
 
             }) 

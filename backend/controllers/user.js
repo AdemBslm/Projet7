@@ -23,14 +23,11 @@ exports.signup = (req, res, next) => {
 exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email })
         .then(user => {
-            console.log(user)
             if (!user) {
                 return res.status(400).json({ error: "utilisateur non trouvé"});
             }
-            console.log("2")
             bcrypt.compare(req.body.password, user.password)
                 .then(valid => {
-                    console.log("3")
                     if (!valid) {
                         return res.status(400).json({error: "Mot de passe incorrect"});
                     }
@@ -40,7 +37,7 @@ exports.login = (req, res, next) => {
                         token: jwt.sign(
                             { userId: user.id },
                             'RANDOM_TOKEN_SECRET',
-                            { expiresIn: '24h' }
+                            { expiresIn: '72h' }
                         )
                     });
                 })
@@ -50,9 +47,8 @@ exports.login = (req, res, next) => {
 };
 
 exports.update = (req, res, next) => {
-    User.findOneById(req)
+    User.findOneById(req.params.id)
         .then(user => {
-            console.log(req.body)
             const userObject = req.file ?
             {
                 ...JSON.parse(req.body.user),
@@ -66,9 +62,8 @@ exports.update = (req, res, next) => {
 };
   
 exports.delete = (req, res, next) => {
-    User.findOneById(req)
+    User.findOneById(req.params.id)
         .then(user => {
-            console.log(user)
             user.deleteUser()
                 .then(() => res.status(200).json({message: "Deleted !"}))
                 .catch((error) => res.status(400).json({error: error}));
