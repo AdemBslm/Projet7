@@ -1,5 +1,6 @@
 const Post = require('../models/post');
 const fs = require('fs');
+const { verify } = require('crypto');
 
 exports.createPublication = (req, res, next) => {
     const post = new Post(
@@ -45,7 +46,7 @@ exports.likePublication = (req, res, next) => {
         case 0 :
             Post.findOneById(req.params.id)
                 .then(post => {
-                    post.dislike(req.params.id, req.body.user_id)
+                    post.dislike(req.body.user_id)
                         .then(() => res.status(201).json({message: "Like enlevé !"}))
                         .catch(error => res.status(400).json({error: error}));
                     })
@@ -54,10 +55,15 @@ exports.likePublication = (req, res, next) => {
         case 1 :
             Post.findOneById(req.params.id)
                 .then(post => {
-                    post.like(req.params.id, req.body.user_id)
-                        .then(() => res.status(201).json({message: "Like rajouté !"}))
-                        .catch(error => res.status(400).json({error: error}));
-                    })
+                    const verify = post.verifyLike(req.body.user_id)
+                    if (verify == ""){
+                        post.like(req.body.user_id)
+                            .then(() => res.status(201).json({message: "Like Ajouté !"}))
+                            .catch(error => res.status(400).json({error: error}));
+                    }else{
+                        res.status(400).json({message: "Like déjà présent !"})
+                    }
+                })
                 .catch(error => res.status(500).json({ error }));
             break;
         default :    

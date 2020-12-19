@@ -26,7 +26,7 @@ class Post {
     
     static getOnePostById(id) {
         return new Promise((resolve, reject) => {
-            db.query("SELECT post.*, user.first_name AS first_name_user, user.last_name AS last_name_user, user.avatar AS avatar_user FROM post INNER JOIN user ON post.user_id = user.id WHERE post.id = ?", [id], (err, result) => {
+            db.query("SELECT post.*, user.first_name AS first_name_user, user.last_name AS last_name_user, user.avatar AS avatar_user, likes.user_id AS likes_user FROM post INNER JOIN user ON post.user_id = user.id LEFT JOIN likes ON post.id = likes.post_id WHERE post.id = ?", [id], (err, result) => {
                 if (err){
                     console.log(err)
                     return reject(err)
@@ -86,15 +86,41 @@ class Post {
     };
 
     //dislike represente la suppression du like.
-    dislike() {
-        
+    dislike(user_id) {
+        return new Promise((resolve, reject) => {
+            let like = [user_id, this.id];
+            let sql = "DELETE FROM likes WHERE user_id = ? AND post_id = ? "
+
+            db.query(sql, like, err => {
+                if (err) {
+                    return reject(err)
+                }else{
+                    return resolve()
+                }
+            })
+        })     
     };
 
-    like() {
+    verifyLike(user_id) {
         return new Promise((resolve, reject) => {
-            let like = [req.body.user_id, req.params.id];
-            let sql = "INSERT INTO likes SET user_id = ?, post_id = ? WHERE NOT EXISTS (SELECT * FROM likes WHERE INSERT user_id = ?, post_id = ? )"
+            let like = [user_id, this.id];
+            let sql = "SELECT * FROM likes WHERE user_id = ? AND post_id = ? "
+            
+            db.query(sql, like, err => {
+                if (err) {
+                    return reject()
+                }else{
+                    return resolve()
+                }
+            })
+        }) 
+    };
 
+    like(user_id) {
+        return new Promise((resolve, reject) => {
+            let like = [user_id, this.id];
+            let sql = "INSERT INTO likes SET user_id = ?, post_id = ? "
+            
             db.query(sql, like, err => {
                 if (err) {
                     return reject(err)
