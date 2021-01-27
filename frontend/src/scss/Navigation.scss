@@ -1,0 +1,132 @@
+$couleur_background: rgb(252, 246, 246);
+$color: rgb(253, 45, 1);
+$color2: #38e2ee;
+$deeper: darken($color, 5%);
+$lighter: lighten($color2, 10%);
+
+
+ul {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding-left: 0;
+    width: 100%;
+    li {
+        margin: 10px;
+        text-align: center;
+        list-style: none;
+    }
+}
+
+a {
+    width: 100%;
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+    border-bottom: 1px solid #ececec;
+    box-shadow: 0 0 4px rgba(121,121,121,.35);
+    background-color: rgb(228, 228, 228);
+}
+a.inscription {
+    border-radius: 25px 0 0 0;
+    border-right: 1px solid #ececec;
+}
+a.connexion{
+    border-radius: 0 25px 0 0;
+    border-left: 1px solid #ececec;
+}
+a.current {
+    border-bottom: none;
+    box-shadow: none;
+    background-color: white;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 0 50px 0;
+    h1 {
+        margin: 0;
+    }
+    .form_champs {
+        display: flex;
+        width: 450px;
+        text-align: center;
+        margin-top: 20px;
+        label {
+            width: 30%;
+        }
+        input {
+            width: 60%;
+        }
+    }
+}
+
+  
+button {
+    margin-top: 30px;
+    border: none;
+    text-decoration: none;
+    color: rgba(white, .95);
+    cursor: pointer;
+}
+
+.psuedo-text {
+  color: $color;
+  position: relative;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  display: inline;
+  height: auto;
+  font-size: 1.7rem;
+  font-size: 700;
+  transition: .25s ease-in;
+  transition-delay: .1s;
+}
+
+.button{
+    padding: 10px 30px;
+    background: white;
+    text-align: center;
+    display: inline-block;
+    font-size: 1.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    position: relative;
+    will-change: transform;
+    &:before{
+        transform: translate(-120%,-50%) translateZ(0);
+    }
+    &:hover:before{
+        transform: translate(-45%,-34%) translateZ(0);
+    }
+}
+
+.button-mat{
+  color: $color;
+  border: 0px transparent;
+  border-radius: .3rem;
+  transition: .3s ease-in-out;
+  transition-delay: .35s;
+  overflow: hidden;
+  
+  &:before{
+    content: '';
+    display: block;
+    background: $deeper;
+    position: absolute;
+    width: 200%;
+    height: 500%;
+    border-radius: 100%;
+    transition: .36s cubic-bezier(0.4, 0.0, 1, 1);
+    }
+  &:hover .psuedo-text{
+    color: white;
+    }
+  &:hover{
+    color: transparent;
+    }
+}
