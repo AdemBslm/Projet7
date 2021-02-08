@@ -20,3 +20,9 @@ body {
         width: 300px;   
     }
 }
+
+#posts {
+    display: flex;
+    flex-direction: column;
+
+}
