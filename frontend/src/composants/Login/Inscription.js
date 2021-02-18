@@ -1,53 +1,75 @@
 import {useForm} from 'react-hook-form';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 
+import Navigation from "./Navigation";
+import logo from '../../Logos/icon-above-font.png';
+import { login, signup } from '../Auth/AuthApi';
+import Auth from '../Auth/Auth';
+
 
 const schema = yup.object().shape({
-    nom: yup.string().matches(/^[a-zA-Zà-ÿÀ-Ÿ-]+$/,'Ecriture incorrect').required('Veuillez mettre un nom !'),
-    prenom: yup.string().matches(/^[a-zA-Zà-ÿÀ-Ÿ-]+$/,'Ecriture incorrect').required('Veuillez mettre un prénom !'),
-    mail: yup.string().email().required('Veuillez mettre un email !'),
+    lastName: yup.string().matches(/^[a-zA-Zà-ÿÀ-Ÿ-]+$/,'Ecriture incorrect').required('Veuillez mettre un nom !'),
+    firstName: yup.string().matches(/^[a-zA-Zà-ÿÀ-Ÿ-]+$/,'Ecriture incorrect').required('Veuillez mettre un prénom !'),
+    email: yup.string().email().required('Veuillez mettre un email !'),
     password: yup.string().min(6,"Mot de passe trop court !").required('Veuillez mettre un mot de passe !'),
 });
 
 
-function Inscription(){
+function Inscription({history}){
+
+    const {isAuthenticated, setIsAuthenticated} = useContext(Auth)
 
     const {register, handleSubmit, errors} = useForm({
         resolver: yupResolver(schema)
     });
 
-    const onSubmit = data => {
-        console.log(data)
+    const onSubmit = async data => {
+        try{
+            await signup(data);
+            const responseLogin = await login(data);
+            setIsAuthenticated(responseLogin)
+            history.replace('/Posts')
+        } catch ({response}){
+            console.log(response)
+        }
     }
 
+    useEffect(() => {
+        if (isAuthenticated){
+            history.replace('/Posts')
+        }
+    }, [history, isAuthenticated])
+
     return(
-        <div>
+        <div className="accueil">
+            <Navigation />
+            <img src={logo} className="App-logo" alt="logo" />
 
             <form className="formulaire" onSubmit={handleSubmit(onSubmit)}>
 
                 <h1>Inscrivez-vous</h1>
 
                 <div className="form_champs"> 
-                    <label htmlFor="nom">Nom :</label>
-                    <input type="texte" id="nom" name="nom" ref={register}></input>
+                    <label htmlFor="lastName">Nom :</label>
+                    <input type="texte" id="lastName" name="lastName" ref={register}></input>
                 </div>
-                {errors.nom && <span role="alert">{errors.nom.message}</span>}
+                {errors.lastName && <span role="alert">{errors.lastName.message}</span>}
 
 
                 <div className="form_champs"> 
-                    <label htmlFor="prenom">Prénom :</label>
-                    <input type="texte" id="prenom" name="prenom" ref={register}></input>
+                    <label htmlFor="firstName">Prénom :</label>
+                    <input type="texte" id="firstName" name="firstName" ref={register}></input>
                 </div>
-                {errors.prenom && <span role="alert">{errors.prenom.message}</span>}
+                {errors.firstName && <span role="alert">{errors.firstName.message}</span>}
 
                 <div className="form_champs"> 
-                    <label htmlFor="mail">Email :</label>
-                    <input type="texte" id="mail" name="mail" ref={register}></input>
+                    <label htmlFor="email">Email :</label>
+                    <input type="texte" id="email" name="email" ref={register}></input>
                 </div>
-                {errors.mail && <span role="alert">{errors.mail.message}</span>}
+                {errors.email && <span role="alert">{errors.email.message}</span>}
 
                 <div className="form_champs">
                     <label htmlFor="password">Mot de passe :</label>

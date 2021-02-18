@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 exports.createComment = (req, res, next) => {
     const post_id = req.params.post_id
 
-    const comment = new Comment(
+    const comment = new Comment( 
         req.body.comment,
         null,
         post_id,

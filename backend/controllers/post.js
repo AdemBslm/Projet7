@@ -55,15 +55,16 @@ exports.likePublication = (req, res, next) => {
         case 1 :
             Post.findOneById(req.params.id)
                 .then(post => {
-                    const verify = post.verifyLike(req.body.user_id)
-                    if (verify == ""){
-                        post.like(req.body.user_id)
-                            .then(() => res.status(201).json({message: "Like Ajouté !"}))
-                            .catch(error => res.status(400).json({error: error}));
-                    }else{
-                        res.status(400).json({message: "Like déjà présent !"})
-                    }
-                })
+                    post.verifyLike(req.body.user_id,req.params.id)
+                        .then(result => {
+                            if (result == ""){
+                                post.like(req.body.user_id)
+                                    .then(() => res.status(201).json({message: "Like Ajouté !"}))
+                                    .catch(error => res.status(400).json({error: error}));
+                            }else{
+                                res.status(400).json({message: "Like déjà présent !"})
+                            }})
+                    })
                 .catch(error => res.status(500).json({ error }));
             break;
         default :    
@@ -72,6 +73,15 @@ exports.likePublication = (req, res, next) => {
 };
 
 
+exports.getLikes = (req, res, next) => {
+    Post.findOneById(req.params.id)
+        .then(post => {
+            post.getLikes(req.params.id)
+                .then(likes => res.status(200).json(likes))
+                .catch((error) => res.status(400).json({error: error}));
+        })
+        .catch((error) => res.status(500).json({error: error}));
+};
 
 
 exports.getAllPublication = (req, res, next) => {

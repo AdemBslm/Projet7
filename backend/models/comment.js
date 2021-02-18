@@ -23,9 +23,9 @@ class Comment {
         })
     }  
 
-    static findOneById(req) {
+    static findOneById(id) {
         return new Promise((resolve, reject) => {
-            db.query("SELECT * FROM comment WHERE id = ?", [req.params.id], (err, result) => {
+            db.query("SELECT * FROM comment WHERE id = ?", [id], (err, result) => {
                 if (err){
                     console.log(err)
                     return reject(err)
@@ -60,8 +60,6 @@ class Comment {
 
     delete() {
         return new Promise((resolve, reject) => {
-            console.log("test delete")
-            console.log(this.id)
             let sql = "DELETE FROM comment WHERE id = ?";
             let id = [this.id]
 

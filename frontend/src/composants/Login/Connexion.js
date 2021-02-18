@@ -1,8 +1,12 @@
 import {useForm} from 'react-hook-form';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
+import Navigation from "./Navigation";
+import logo from '../../Logos/icon-above-font.png';
+import Auth from '../Auth/Auth';
+import { login } from '../Auth/AuthApi';
 
 
 const schema = yup.object().shape({
@@ -10,20 +14,40 @@ const schema = yup.object().shape({
     password: yup.string().required('Veuillez mettre un mot de passe !'),
 });
 
+function Connexion({history}){
 
-function Connexion(){
+    const {isAuthenticated, setIsAuthenticated} = useContext(Auth)
 
     const {register, handleSubmit, errors} = useForm({
         mode: 'onSubmit',
         resolver: yupResolver(schema)
     });
 
-    const onSubmit = data => {
-        console.log(data)
+    const onSubmit = async data => {
+
+        try{
+            const response = await login(data);
+            setIsAuthenticated(response)
+            history.replace('/Posts')
+        } catch ({response}){
+            console.log(response)
+        }
+
     }
 
+
+    useEffect(() => {
+        if (isAuthenticated){
+            history.replace('/Posts')
+        }
+    }, [history, isAuthenticated])
+
     return(
-        <div>
+        <div className="accueil">
+
+            <Navigation />
+            <img src={logo} className="App-logo" alt="logo" />
+
             <form className="formulaire" onSubmit={handleSubmit(onSubmit)}>
 
                 <h1>Connectez-vous</h1>

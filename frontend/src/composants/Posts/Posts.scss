@@ -41,6 +41,9 @@
         .post-texte {
             margin-left: 75px;
             margin-bottom: 30px;
+            .texte {
+                word-wrap: break-word;
+            }
         }
         .image-post{
             width: 90%;
@@ -49,7 +52,7 @@
         .button-like-comment {
             display: flex;
             justify-content: space-around;
-            button {
+            .button-comment, .dislike {
                 border: none;
                 background-color: white;
                 width: 100%;
@@ -62,7 +65,22 @@
                     color: rgb(253, 45, 1);
                 }
             }
+            .like {
+                border: none;
+                background-color: white;
+                width: 100%;
+                color: rgb(253, 45, 1);
+                cursor: pointer;
+                font-size: 25px;
+                &:focus{
+                    outline: none;
+                }
+                &:hover {
+                    color: black;
+                }
+            }
         }
+        
     }
 
     .addPost {
@@ -115,6 +133,9 @@
                     color: rgb(253, 45, 1);
                 }           
             }
+        }   
+        @media screen and (max-width: 850px) {
+            width: 100%;
         }
     }
 
@@ -159,6 +180,13 @@
         }
         &:hover {
             color: rgb(253, 45, 1);
+        }
+    }
+
+    @media screen and (max-width: 850px) {
+        width: 100%;
+        .post {
+            width: 100%;
         }
     }
 }

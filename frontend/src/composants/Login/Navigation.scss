@@ -64,6 +64,20 @@ $deeper: darken($color, 5%);
             width: 60%;
         }
     }
+    @media screen and (max-width: 1000px) {
+        width: 100%;
+       .form_champs {
+           font-size: 25px;
+           width: 80%;
+       }
+    }
+    @media screen and (max-width: 850px) {
+        width: 100%;
+       .form_champs {
+           font-size: 15px;
+           width: 80%;
+       }
+    }
 }
 
   

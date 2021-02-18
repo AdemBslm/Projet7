@@ -1,6 +1,6 @@
-import React from 'react';
-import { Redirect } from 'react-router-dom';
-import {Auth} from './Auth';
+import React, { useContext } from 'react';
+import { Redirect, Route } from 'react-router-dom';
+import Auth from './Auth';
 
 const AuthenticatedRoute = ({ path, component }) => {
     const { isAuthenticated } = useContext(Auth);

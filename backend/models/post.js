@@ -17,7 +17,6 @@ class Post {
                     console.log(err)
                     return reject(err)
                 }
-                console.log(result)
                 resolve(result);
 
             })  
@@ -26,11 +25,12 @@ class Post {
     
     static getOnePostById(id) {
         return new Promise((resolve, reject) => {
-            db.query("SELECT post.*, user.first_name AS first_name_user, user.last_name AS last_name_user, user.avatar AS avatar_user, likes.user_id AS likes_user FROM post INNER JOIN user ON post.user_id = user.id LEFT JOIN likes ON post.id = likes.post_id WHERE post.id = ?", [id], (err, result) => {
+            db.query("SELECT post.*, user.first_name AS first_name_user, user.last_name AS last_name_user, user.avatar AS avatar_user FROM post INNER JOIN user ON post.user_id = user.id WHERE post.id = ?", [id], (err, result) => {
                 if (err){
                     console.log(err)
                     return reject(err)
                 }
+
                 resolve(result[0]);
 
             }) 
@@ -41,8 +41,11 @@ class Post {
         return new Promise((resolve, reject) => {
             db.query("SELECT * FROM post WHERE post.id = ?", [id], (err, result) => {
                 if (err){
-                    console.log(err)
+                    console.log(err) 
                     return reject(err)
+                }
+                if (result.length === 0){
+                    return resolve(false)
                 }
                 resolve(new Post(result[0].post, result[0].image, result[0].date, result[0].user_id, result[0].id));
 
@@ -101,16 +104,31 @@ class Post {
         })     
     };
 
-    verifyLike(user_id) {
+    verifyLike(user_id,post_id) {
         return new Promise((resolve, reject) => {
-            let like = [user_id, this.id];
+            let like = [user_id, post_id];
             let sql = "SELECT * FROM likes WHERE user_id = ? AND post_id = ? "
             
-            db.query(sql, like, err => {
+            db.query(sql, like, (err, result) => {
                 if (err) {
                     return reject()
                 }else{
-                    return resolve()
+                    resolve(result)
+                }
+            })
+        }) 
+    };
+
+    getLikes(id) {
+        return new Promise((resolve, reject) => {
+            let like = [id];
+            let sql = "SELECT * FROM likes WHERE post_id = ? "
+            
+            db.query(sql, like, (err, result) => {
+                if (err) {
+                    return reject()
+                }else{
+                    resolve(result)
                 }
             })
         }) 

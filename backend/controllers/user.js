@@ -24,12 +24,12 @@ exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email })
         .then(user => {
             if (!user) {
-                return res.status(400).json({ error: "utilisateur non trouvé"});
+                return res.status(401).json({ error: "utilisateur non trouvé"});
             }
             bcrypt.compare(req.body.password, user.password)
                 .then(valid => {
                     if (!valid) {
-                        return res.status(400).json({error: "Mot de passe incorrect"});
+                        return res.status(401).json({error: "Mot de passe incorrect"});
                     }
                     console.log(user.id)
                     res.status(200).json({
@@ -38,10 +38,13 @@ exports.login = (req, res, next) => {
                             { userId: user.id },
                             'RANDOM_TOKEN_SECRET',
                             { expiresIn: '72h' }
-                        )
-                    });
+                        ),
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        avatar: user.avatar
+                    }); 
                 })
-                .catch(error => res.status(400).json({ error}));
+                .catch(error => res.status(500).json({ error: "test"}));
         })
         .catch(error => res.status(500).json({ error}));
 };
@@ -62,7 +65,7 @@ exports.update = (req, res, next) => {
 };
   
 exports.delete = (req, res, next) => {
-    User.findOneById(req.params.id)
+    User.findOneById(req.params.id)  
         .then(user => {
             user.deleteUser()
                 .then(() => res.status(200).json({message: "Deleted !"}))
