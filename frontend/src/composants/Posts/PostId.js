@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
-import avatar from '../../Logos/Avatar/default.png';
+import avatarDefault from '../../Logos/Avatar/default.png';
 
 import Profil from './Header';
 
@@ -28,6 +28,7 @@ function Post(){
     let history = useHistory();
 
     const [post, setPost] = useState([]);
+    const [avatar, setAvatar] = useState(null)
 
     const token = localStorage.getItem('miniToken')
 
@@ -38,6 +39,7 @@ function Post(){
             console.log(response)
             if (response.status === 200){
                 setPost(responseData)
+                setAvatar(responseData.avatar_user)
             } else {
                 alert(JSON.stringify(responseData))
             }
@@ -62,7 +64,8 @@ function Post(){
                 
                 <div className="profils-user">
                     <div className="avatar">
-                        <img src={avatar} alt="avatar" />
+                        
+                    {avatar === null ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + avatar} alt="imageAvatar" className="image-addPost"/>}
                     </div>
 
                     <div className="names-date"> 
@@ -95,7 +98,8 @@ function Post(){
 function Comment() {
 
     let { id } = useParams();
-    const token = localStorage.getItem('miniToken');
+    const token = localStorage.getItem('miniToken'); 
+    const avatar = localStorage.getItem('avatar');
 
 
     const [comments, setComments] = useState([]);
@@ -130,7 +134,7 @@ function Comment() {
         resolver: yupResolver(schema)
     });
 
-    const onSubmit = async data => {
+    const onSubmit = async (data, e) => {
         const comment = {
             "user_id": user_id,
             "comment": data.comment,
@@ -144,13 +148,16 @@ function Comment() {
         } catch ({response}){
             console.log(response)
         }
+
+        e.target.reset();
     }
 
     return (
         <>
         <form className="addPost" onSubmit={handleSubmit(onSubmit)}>
                 <div className="texte-addPost">
-                    <img src={avatar} alt="imageAvatar" className="image-addPost"/>
+                    
+                {avatar === null ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + avatar} alt="imageAvatar" className="image-addPost"/>}
                     <TextareaAutosize type="texte" id="comment" name="comment" ref={register} maxLength="255" placeholder="Laisser un commentaire." wrap="soft"/>  
                 </div>
     
@@ -165,7 +172,7 @@ function Comment() {
 
                     <div className="profils-user">
                         <div className="avatar">
-                            <img src={avatar} alt="avatar" />
+                            {comments.avatar_user === null ? <img src={avatarDefault} alt="avatarProfil" /> : <img src={'http://localhost:3000/' + comments.avatar_user} alt="avatarProfil" />}
                         </div>
 
                         <div className="names-date"> 

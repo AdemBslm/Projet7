@@ -1,5 +1,5 @@
 import {useForm} from 'react-hook-form';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
@@ -26,6 +26,8 @@ function Inscription({history}){
         resolver: yupResolver(schema)
     });
 
+    const [status, setStatus] = useState("")
+
     const onSubmit = async data => {
         try{
             await signup(data);
@@ -33,7 +35,7 @@ function Inscription({history}){
             setIsAuthenticated(responseLogin)
             history.replace('/Posts')
         } catch ({response}){
-            console.log(response)
+            setStatus(response.status)
         }
     }
 
@@ -77,6 +79,7 @@ function Inscription({history}){
                 </div>
                 {errors.password && <span role="alert">{errors.password.message}</span>}
 
+                {status === 400 && <p>Adresse mail déjà utilisé.</p>}
                 <button className="button button-mat button-formulaire">
                     <div className="psuedo-text">s'inscrire</div>
                 </button> 

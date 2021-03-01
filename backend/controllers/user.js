@@ -52,14 +52,12 @@ exports.login = (req, res, next) => {
 exports.update = (req, res, next) => {
     User.findOneById(req.params.id)
         .then(user => {
-            const userObject = req.file ?
-            {
-                ...JSON.parse(req.body.user),
-                avatar: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-            } : {...req.body};
-            user.update(req)
-                .then(() => res.status(200).json({message: "Modified!"}))
-                .catch((error) => res.status(400).json({error: error}));
+            console.log(user)
+            fs.unlink(`${user.avatar}`, () => { 
+                user.update(req.body.avatar, req.body.userId)
+                    .then(() => res.status(200).json({message: "Modified!"}))
+                    .catch((error) => res.status(400).json({error: error}));
+            })
         })
         .catch((error) => res.status(500).json({error: error}));
 };

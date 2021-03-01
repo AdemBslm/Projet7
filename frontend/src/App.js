@@ -1,6 +1,6 @@
 import './App.scss';
 import React, { useState } from 'react';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import {BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom';
 
 
 import Inscription from './composants/Login/Inscription';
@@ -28,9 +28,11 @@ function App() {
               <Switch>
                   <Route exact path="/Inscription"component={Inscription}/>
                   <Route exact path="/" component={Connexion}/>
+                  {isAuthenticated === false && <Redirect to="/"/> }
                   <AuthenticatedRoute  path="/UpdateAvatar" component={UpdateAvatar}/>
                   <AuthenticatedRoute path="/Posts/:id" component={PostId}/> 
-                  <AuthenticatedRoute path="/Posts" component={Posts}/> 
+                  <AuthenticatedRoute path="/Posts" exact component={Posts}/> 
+                  {isAuthenticated === true && <Redirect to="/Posts"/> }
               </Switch>
 
             </Router>

@@ -18,7 +18,7 @@ exports.createComment = (req, res, next) => {
  
 exports.getAllComment = (req, res, next) => {
     Comment.find(req.params.post_id)  
-        .then(comments => res.status(200).json(comments))
+        .then(comments => res.status(200).json(comments.reverse()))
         .catch(error => res.status(400).json({error: error}));
 };
 

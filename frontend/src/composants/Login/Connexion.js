@@ -1,5 +1,5 @@
 import {useForm} from 'react-hook-form';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
@@ -18,6 +18,9 @@ function Connexion({history}){
 
     const {isAuthenticated, setIsAuthenticated} = useContext(Auth)
 
+    const [status, setStatus] = useState("");
+    const [message, setMessage] = useState("");
+
     const {register, handleSubmit, errors} = useForm({
         mode: 'onSubmit',
         resolver: yupResolver(schema)
@@ -28,9 +31,11 @@ function Connexion({history}){
         try{
             const response = await login(data);
             setIsAuthenticated(response)
-            history.replace('/Posts')
+            history.replace('/Posts') 
+            console.log(response.status) 
         } catch ({response}){
-            console.log(response)
+            setMessage(response.data.error);
+            setStatus(response.status);
         }
 
     }
@@ -44,7 +49,7 @@ function Connexion({history}){
 
     return(
         <div className="accueil">
-
+ 
             <Navigation />
             <img src={logo} className="App-logo" alt="logo" />
 
@@ -62,8 +67,8 @@ function Connexion({history}){
                     <label htmlFor="password">Mot de passe :</label>
                     <input type="password" id="password" name="password" ref={register}></input>
                 </div>
-                {errors.password && <span role="alert">Mot de passe incorrect.</span>}
 
+                {status === 401 && <p>{message}</p>}
                 <button className="button button-mat button-formulaire">
                     <div className="psuedo-text">se connecter</div>
                 </button> 

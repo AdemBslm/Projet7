@@ -30,10 +30,12 @@ exports.getOnePublication = (req, res, next) => {
 exports.deletePublication = (req, res, next) => {
     Post.findOneById(req.params.id)
         .then(post => {
-            console.log(post)
-            post.delete()
-                .then(() => res.status(200).json({message: "Deleted !"}))
-                .catch((error) => res.status(400).json({error: error}));
+            console.log(post.image)
+            fs.unlink(`${post.image}`, () => { 
+                post.delete()
+                    .then(() => res.status(200).json({message: "Deleted !"}))
+                    .catch((error) => res.status(400).json({error: error}));
+            })
         })
         .catch((error) => res.status(500).json({error: error}));
 };
@@ -86,6 +88,6 @@ exports.getLikes = (req, res, next) => {
 
 exports.getAllPublication = (req, res, next) => {
     Post.find() 
-        .then(posts => res.status(200).json(posts))
+        .then(posts => res.status(200).json(posts.reverse()))
         .catch(error => res.status(400).json({error: error}));
 };

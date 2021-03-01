@@ -8,7 +8,7 @@ class User {
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.avatar = null
+        this.avatar = avatar || null
     }
 
     static findOne(user) {
@@ -35,6 +35,7 @@ class User {
                     console.log(err)
                     return reject(err)
                 }
+                console.log(result)
                 resolve(new User(result[0].email, result[0].password, result[0].first_name, result[0].last_name, result[0].avatar, result[0].id));
 
             }) 
@@ -77,10 +78,10 @@ class User {
         }) 
     };
 
-    update() {
+    update(avatar, id) {
         return new Promise((resolve, reject) => {
             let sql = "UPDATE user SET avatar = ? WHERE id = ?";
-            let user = [this.avatar, this.id];
+            let user = [avatar, id];
 
             db.query(sql,user, err => {
                 if (err) {

@@ -17,7 +17,6 @@ import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 
 const user_id = parseInt(localStorage.getItem('userId'));
-const avatar = localStorage.getItem('avatar');
 
 const schema = yup.object().shape({
     post: yup.string().max(255),
@@ -48,7 +47,7 @@ function Likes(id) {
     const clickLike = (id, like) => {
         console.log(like)
         axios.post('http://localhost:3000/api/posts/' + id + '/like', like ,{headers: {'Authorization': `Bearer ${token}`}})
-        .then(res => {
+        .then(() => {
             setHandleLikes(handleLikes => handleLikes + 1)
         })
     }
@@ -68,7 +67,10 @@ function Posts(){
     const [posts, setPosts] = useState([]);
     const [handlePosts, setHandlePosts] = useState(0);
 
+    const [file, setFile] = useState('');
+
     const token = localStorage.getItem('miniToken')
+    const avatar = localStorage.getItem('avatar');
 
     useEffect(function () {
         (async function () {
@@ -85,10 +87,12 @@ function Posts(){
 
     const deletePost = async(id) => {
         if(window.confirm('Êtes-vous sûr de vouloir supprimer votre publication ?')){
-            axios.delete('http://localhost:3000/api/posts/' + id ,{headers: {'Authorization': `Bearer ${token}`}})
-            .then(res => {
-                setHandlePosts(handlePosts => handlePosts + 1)
-            })
+            try{
+                await axios.delete('http://localhost:3000/api/posts/' + id ,{headers: {'Authorization': `Bearer ${token}`}})
+            }catch ({response}){
+                console.log(response)
+            }
+            setHandlePosts(handlePosts => handlePosts + 1)
         } else {
             console.log("Annulation")
         }
@@ -99,23 +103,38 @@ function Posts(){
         resolver: yupResolver(schema)
     });
 
-    const onSubmit = async data => {
+    const onChange = e => {
+        setFile(e.target.files[0])
+    }
 
-        const image = data.image[0].name
-
-        const post = {
-            "user_id": user_id,
-            "post": data.post,
-            "image": image
+    
+    
+    const onSubmit = async (data, e) => {
+        if(data.post === "" && data.image.length === 0){
+            return false;
         }
-        
+        const formData = new FormData();
+        formData.append('file', file);
+        console.log(formData)
+
+
         try{
-            const response = await axios.post('http://localhost:3000/api/posts', post, {headers: {'Authorization': `Bearer ${token}`}});
-            console.log(response);
+            const response = await axios.post('http://localhost:3000/upload', formData, {headers: {'Authorization': `Bearer ${token}`,'Content-Type': 'multipart/form-data'}});
+            console.log(response.data.filePath)
+            const post = {
+                "user_id": user_id,
+                "post": data.post,
+                "image": response.data.filePath
+            }
+            const responsePost = await axios.post('http://localhost:3000/api/posts', post, {headers: {'Authorization': `Bearer ${token}`}});
+            console.log(responsePost);
             setHandlePosts(handlePosts => handlePosts + 1)
         } catch ({response}){
             console.log(response)
         }
+
+        e.target.reset();
+
     }
     //Fin addPost
 
@@ -126,12 +145,12 @@ function Posts(){
             <div className="container">
                 <form className="addPost" onSubmit={handleSubmit(onSubmit)}>
                     <div className="texte-addPost">
-                        {avatar === "null" ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={avatar} alt="imageAvatar" className="image-addPost"/>}
+                        {avatar === "null" ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + avatar} alt="imageAvatar" className="image-addPost"/>}
                         <TextareaAutosize type="texte" id="post" name="post" ref={register} maxLength="255" placeholder="Quoi de neuf ?" wrap="soft"/>  
                     </div>
 
                     <div className="button-addPost">
-                        <input type="file" id="image" name="image" accept="image/png, image/jpeg" ref={register}/>
+                        <input type="file" id="image" name="image" accept="image/png, image/jpeg" ref={register} onChange={onChange} />
                         <button className="button-send"><FontAwesomeIcon icon={faPaperPlane} className="icones"/> Envoyer</button>
                     </div>
                 </form>
@@ -142,7 +161,7 @@ function Posts(){
 
                         <div className="profils-user">
                             <div className="avatar">
-                            {avatar === "null" ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={avatar} alt="imageAvatar" className="image-addPost"/>}
+                            {posts.avatar_user === null ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + posts.avatar_user} alt="imageAvatar" className="image-addPost"/>}
                             </div>
 
                             <div className="names-date"> 
@@ -165,7 +184,7 @@ function Posts(){
                                 {posts.post}
                             </div>
                         }
-                        {!posts.image || <img src={posts.image} alt="imagePost" className="image-post"/>}
+                        {!posts.image || <img src={'http://localhost:3000/' + posts.image} alt="imagePost" className="image-post"/>}
                     </div>
 
                     <div className="button-like-comment">
@@ -173,7 +192,7 @@ function Posts(){
                         <button className="button-comment" onClick={() => history.push('/Posts/' + posts.id)}><FontAwesomeIcon icon={faComment} className="icones"/> Commenter</button>
                     </div>
                 </div>
-                )};
+                )}
             </div>
         </div>
     )

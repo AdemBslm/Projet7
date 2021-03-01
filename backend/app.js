@@ -1,8 +1,10 @@
 const express = require('express');
+const fileUpload = require('express-fileupload')
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const db = require('./connection');
 const path = require('path');
+const auth = require("./middleware/auth")
 
 const userRoutes = require('./routes/user');
 const postRoutes = require('./routes/post');
@@ -17,15 +19,36 @@ db.connect((err) => {
     }
     console.log("Mysql Connected...");
 })
-
+ 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    next();
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); 
+    next(); 
 });
 
 app.use(bodyParser.json());
+app.use(fileUpload());
+
+app.post('/upload',auth, (req, res) => {
+    if(req.files === null) {
+        return res.json('')
+    }
+
+
+    const file = req.files.file;
+    const fileName = Date.now() + file.name;
+
+
+    file.mv(`${__dirname}/images/${fileName}`,err => {
+        if(err){
+            console.error(err);
+            return res.status(500).send(err);
+        }
+
+        res.json({ fileName: file.name, filePath: `images/${fileName}`})
+    });
+}) 
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/auth', userRoutes);
