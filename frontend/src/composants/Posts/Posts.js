@@ -116,7 +116,6 @@ function Posts(){
     });
 
     const onChange = e => {
-        
         if(e.target.files[0] !== undefined){
             const type = MIME_TYPES.find(type => type === e.target.files[0].type)
             if(type === undefined){
@@ -134,19 +133,20 @@ function Posts(){
         if(data.post.replace(/ /g,"").replace(/\n|\r/g,'') === ""  && data.image.length === 0){
             return false;
         }
+        
         console.log(file)
-        if(file !== (undefined || '')){
+        if(file !== undefined && file !== ''){
             const type = MIME_TYPES.find(type => type === file.type)
             if(type === undefined){
                 setFileMessageError(true)
-                return false
+                return false 
             }else{
                 setFileMessageError(false)  
             }
         }
+        
         const formData = new FormData();
         formData.append('file', file);
-        console.log(formData)
 
 
         try{

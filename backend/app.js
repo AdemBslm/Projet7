@@ -37,17 +37,23 @@ app.post('/upload',auth, (req, res) => {
         'image/png',
         'image/gif'
     ];
-    const file = req.files.file;
-    const fileName = Date.now() + file.name;
 
     if(req.files === null) {
         return res.json('')
     }
-    const type = MIME_TYPES.find(type => type === file.type)
+
+    
+    const file = req.files.file;
+    const fileName = Date.now() + file.name;
+
+    
+    console.log(file)
+    const type = MIME_TYPES.find(type => type === file.mimetype)
+    console.log(type)
     if(type === undefined){
         return res.status(401).send('fichier non accepté.');
     }
-
+    
 
     file.mv(`${__dirname}/images/${fileName}`,err => {
         if(err){
