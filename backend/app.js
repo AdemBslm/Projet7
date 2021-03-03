@@ -31,13 +31,22 @@ app.use(bodyParser.json());
 app.use(fileUpload());
 
 app.post('/upload',auth, (req, res) => {
+    const MIME_TYPES = [
+        'image/jpg',
+        'image/jpeg',
+        'image/png',
+        'image/gif'
+    ];
+    const file = req.files.file;
+    const fileName = Date.now() + file.name;
+
     if(req.files === null) {
         return res.json('')
     }
-
-
-    const file = req.files.file;
-    const fileName = Date.now() + file.name;
+    const type = MIME_TYPES.find(type => type === file.type)
+    if(type === undefined){
+        return res.status(401).send('fichier non accepté.');
+    }
 
 
     file.mv(`${__dirname}/images/${fileName}`,err => {

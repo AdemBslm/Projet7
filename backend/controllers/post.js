@@ -30,7 +30,6 @@ exports.getOnePublication = (req, res, next) => {
 exports.deletePublication = (req, res, next) => {
     Post.findOneById(req.params.id)
         .then(post => {
-            console.log(post.image)
             fs.unlink(`${post.image}`, () => { 
                 post.delete()
                     .then(() => res.status(200).json({message: "Deleted !"}))

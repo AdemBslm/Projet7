@@ -16,22 +16,24 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 
-const user_id = parseInt(localStorage.getItem('userId'));
-
 const schema = yup.object().shape({
     post: yup.string().max(255),
 });
 
-function Likes(id) {
+function Likes(post) {
 
     const token = localStorage.getItem('miniToken')
 
     const [likes, setLikes] = useState([]);
     const [handleLikes, setHandleLikes] = useState(0);
 
+    
+    const user_id = parseInt(localStorage.getItem('userId'));
+
+
     useEffect(function () {
         (async function () {
-            const response = await axios.get('http://localhost:3000/api/posts/' + id.id + '/like', {headers: {'Authorization': `Bearer ${token}`}});
+            const response = await axios.get('http://localhost:3000/api/posts/' + post.id + '/like', {headers: {'Authorization': `Bearer ${token}`}});
             const responseData = response.data
             if (response.status === 200){
                 setLikes(responseData)
@@ -40,7 +42,7 @@ function Likes(id) {
                 alert(JSON.stringify(responseData))
             }
         })()
-    },[token, id, handleLikes])
+    },[token, post.id, handleLikes])
 
     const likePost = likes.find(likePost => likePost.user_id === user_id)
 
@@ -54,9 +56,9 @@ function Likes(id) {
 
     return <>
         {likePost === undefined ? 
-            <button className="button-like dislike" onClick={() => clickLike(id.id, {like: 1,user_id: user_id})}>{likes.length} <FontAwesomeIcon icon={faHeart} className="icones icones-like"/> J'aime</button>
+            <button className="button-like dislike" onClick={() => clickLike(post.id, {like: 1,user_id: user_id})}>{likes.length} <FontAwesomeIcon icon={faHeart} className="icones icones-like"/> J'aime</button>
         :
-            <button className="button-like like" onClick={() => clickLike(id.id, {like: 0,user_id: user_id})}>{likes.length} <FontAwesomeIcon icon={faHeart} className="icones icones-like"/> J'aime</button>}
+            <button className="button-like like" onClick={() => clickLike(post.id, {like: 0,user_id: user_id})}>{likes.length} <FontAwesomeIcon icon={faHeart} className="icones icones-like"/> J'aime</button>}
         </>
 }
 
@@ -68,9 +70,19 @@ function Posts(){
     const [handlePosts, setHandlePosts] = useState(0);
 
     const [file, setFile] = useState('');
+    const [fileMessageError, setFileMessageError] = useState(false);
 
     const token = localStorage.getItem('miniToken')
     const avatar = localStorage.getItem('avatar');
+    const user_id = parseInt(localStorage.getItem('userId'));
+
+
+    const MIME_TYPES = [
+        'image/jpg',
+        'image/jpeg',
+        'image/png',
+        'image/gif'
+    ];
 
     useEffect(function () {
         (async function () {
@@ -104,14 +116,33 @@ function Posts(){
     });
 
     const onChange = e => {
+        
+        if(e.target.files[0] !== undefined){
+            const type = MIME_TYPES.find(type => type === e.target.files[0].type)
+            if(type === undefined){
+                setFileMessageError(true)
+            }else{
+                setFileMessageError(false)  
+            }
+        }
+        console.log(e.target.files[0])
         setFile(e.target.files[0])
     }
 
     
-    
     const onSubmit = async (data, e) => {
-        if(data.post === "" && data.image.length === 0){
+        if(data.post.replace(/ /g,"").replace(/\n|\r/g,'') === ""  && data.image.length === 0){
             return false;
+        }
+        console.log(file)
+        if(file !== (undefined || '')){
+            const type = MIME_TYPES.find(type => type === file.type)
+            if(type === undefined){
+                setFileMessageError(true)
+                return false
+            }else{
+                setFileMessageError(false)  
+            }
         }
         const formData = new FormData();
         formData.append('file', file);
@@ -129,6 +160,7 @@ function Posts(){
             const responsePost = await axios.post('http://localhost:3000/api/posts', post, {headers: {'Authorization': `Bearer ${token}`}});
             console.log(responsePost);
             setHandlePosts(handlePosts => handlePosts + 1)
+            setFile('')
         } catch ({response}){
             console.log(response)
         }
@@ -145,7 +177,7 @@ function Posts(){
             <div className="container">
                 <form className="addPost" onSubmit={handleSubmit(onSubmit)}>
                     <div className="texte-addPost">
-                        {avatar === "null" ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + avatar} alt="imageAvatar" className="image-addPost"/>}
+                        {(avatar === "null" || avatar === "undefined") ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + avatar} alt="imageAvatar" className="image-addPost"/>}
                         <TextareaAutosize type="texte" id="post" name="post" ref={register} maxLength="255" placeholder="Quoi de neuf ?" wrap="soft"/>  
                     </div>
 
@@ -153,43 +185,44 @@ function Posts(){
                         <input type="file" id="image" name="image" accept="image/png, image/jpeg" ref={register} onChange={onChange} />
                         <button className="button-send"><FontAwesomeIcon icon={faPaperPlane} className="icones"/> Envoyer</button>
                     </div>
+                    {fileMessageError && <span role="alert">Le type du fichier n'est pas accepté.</span>}
                 </form>
                 
-                {posts.map((posts) => 
-                <div className="post" key={posts.id}>
+                {posts.map((post) => 
+                <div className="post" key={post.id}>
                     <div className="profils">
 
                         <div className="profils-user">
                             <div className="avatar">
-                            {posts.avatar_user === null ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + posts.avatar_user} alt="imageAvatar" className="image-addPost"/>}
+                            {post.avatar_user === null ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + post.avatar_user} alt="imageAvatar" className="image-addPost"/>}
                             </div>
 
                             <div className="names-date"> 
                                 <div className="name">
-                                    {posts.first_name_user} {posts.last_name_user}
+                                    {post.first_name_user} {post.last_name_user}
                                 </div>
                                 <div className="date">
-                                    {posts.date}
+                                    {post.date}
                                 </div>
                             </div>
                         </div>
                     
-                        {user_id === posts.user_id && <button className="button-delete" onClick={() => deletePost(posts.id)}><FontAwesomeIcon icon={faTrashAlt} className="icones icones-like"/></button>}
+                        {user_id === post.user_id && <button className="button-delete" onClick={() => deletePost(post.id)}><FontAwesomeIcon icon={faTrashAlt} className="icones icones-like"/></button>}
 
                     </div>
 
                     <div className="post-texte">
-                        {!posts.post ||
+                        {!post.post ||
                             <div className="texte">
-                                {posts.post}
+                                {post.post}
                             </div>
                         }
-                        {!posts.image || <img src={'http://localhost:3000/' + posts.image} alt="imagePost" className="image-post"/>}
+                        {!post.image || <img src={'http://localhost:3000/' + post.image} alt="imagePost" className="image-post"/>}
                     </div>
 
                     <div className="button-like-comment">
-                        <Likes id={posts.id}/>
-                        <button className="button-comment" onClick={() => history.push('/Posts/' + posts.id)}><FontAwesomeIcon icon={faComment} className="icones"/> Commenter</button>
+                        <Likes id={post.id}/>
+                        <button className="button-comment" onClick={() => history.push('/Posts/' + post.id)}><FontAwesomeIcon icon={faComment} className="icones"/> Commenter</button>
                     </div>
                 </div>
                 )}

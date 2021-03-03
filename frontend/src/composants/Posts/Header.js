@@ -69,7 +69,7 @@ function Menu(){
             }   
 
             <button onClick={toggleMenuChange} id="button-avatar"className="button-menu">
-                {avatar === "null" ? <img src={avatarDefault} alt="avatarProfil" /> : <img src={'http://localhost:3000/' + avatar} alt="avatarProfil" />}
+                {(avatar === "null" || avatar === "undefined")? <img src={avatarDefault} alt="avatarProfil" /> : <img src={'http://localhost:3000/' + avatar} alt="avatarProfil" />}
             </button>
 
         </nav>

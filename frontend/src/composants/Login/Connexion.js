@@ -19,9 +19,8 @@ function Connexion({history}){
     const {isAuthenticated, setIsAuthenticated} = useContext(Auth)
 
     const [status, setStatus] = useState("");
-    const [message, setMessage] = useState("");
 
-    const {register, handleSubmit, errors} = useForm({
+    const {register, handleSubmit} = useForm({
         mode: 'onSubmit',
         resolver: yupResolver(schema)
     });
@@ -34,7 +33,6 @@ function Connexion({history}){
             history.replace('/Posts') 
             console.log(response.status) 
         } catch ({response}){
-            setMessage(response.data.error);
             setStatus(response.status);
         }
 
@@ -61,14 +59,13 @@ function Connexion({history}){
                     <label htmlFor="email">Email :</label>
                     <input type="texte" id="email" name="email" ref={register}></input>
                 </div>
-                {errors.email && <span role="alert">{errors.email.message}</span>}
 
                 <div className="form_champs">
                     <label htmlFor="password">Mot de passe :</label>
                     <input type="password" id="password" name="password" ref={register}></input>
                 </div>
 
-                {status === 401 && <p>{message}</p>}
+                {status === 401 && <p>Identifiant incorrect</p>}
                 <button className="button button-mat button-formulaire">
                     <div className="psuedo-text">se connecter</div>
                 </button> 

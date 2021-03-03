@@ -20,9 +20,10 @@ const schema = yup.object().shape({
     comment: yup.string().max(255),
 });
 
-const user_id = parseInt(localStorage.getItem("userId"));
-
 function Post(){
+
+    const user_id = parseInt(localStorage.getItem("userId"));
+
     
     let { id } = useParams();
     let history = useHistory();
@@ -88,7 +89,7 @@ function Post(){
                         {post.post}
                     </div>
                 }
-                {!post.image || <img src={post.image} alt="imagePost" className="image-post"/>}
+                {!post.image || <img src={'http://localhost:3000/' +  post.image} alt="imagePost" className="image-post"/>}
             </div>
         </div>
     )
@@ -97,9 +98,11 @@ function Post(){
 
 function Comment() {
 
+
     let { id } = useParams();
     const token = localStorage.getItem('miniToken'); 
-    const avatar = localStorage.getItem('avatar');
+    const avatarUser = localStorage.getItem('avatar');
+    const user_id = parseInt(localStorage.getItem("userId"));
 
 
     const [comments, setComments] = useState([]);
@@ -135,6 +138,9 @@ function Comment() {
     });
 
     const onSubmit = async (data, e) => {
+        if(data.comment.replace(/ /g,"").replace(/\n|\r/g,'') === ""){
+            return false;
+        }
         const comment = {
             "user_id": user_id,
             "comment": data.comment,
@@ -157,7 +163,7 @@ function Comment() {
         <form className="addPost" onSubmit={handleSubmit(onSubmit)}>
                 <div className="texte-addPost">
                     
-                {avatar === null ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + avatar} alt="imageAvatar" className="image-addPost"/>}
+                {(avatarUser === "null" || avatarUser === "undefined") ? <img src={avatarDefault} alt="imageAvatar" className="image-addPost"/> : <img src={'http://localhost:3000/' + avatarUser} alt="imageAvatar" className="image-addPost"/>}
                     <TextareaAutosize type="texte" id="comment" name="comment" ref={register} maxLength="255" placeholder="Laisser un commentaire." wrap="soft"/>  
                 </div>
     

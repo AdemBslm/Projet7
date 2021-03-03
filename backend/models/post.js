@@ -12,7 +12,7 @@ class Post {
 
     static find() {
         return new Promise((resolve, reject) => {
-            db.query("SELECT post.*, user.first_name AS first_name_user, user.last_name AS last_name_user, user.avatar AS avatar_user FROM post INNER JOIN user ON post.user_id = user.id", (err, result) => {
+            db.query("SELECT post.*, user.first_name AS first_name_user, user.last_name AS last_name_user, user.avatar AS avatar_user FROM post INNER JOIN user ON post.user_id = user.id ORDER BY post.date", (err, result) => {
                 if (err){
                     console.log(err)
                     return reject(err)
