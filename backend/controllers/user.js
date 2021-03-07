@@ -2,21 +2,36 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
-
-exports.signup = (req, res, next) => {
-    bcrypt.hash(req.body.password, 10)
-        .then((hash) => {
-            let user = new User(
-                req.body.email,
-                hash,
-                req.body.firstName,
-                req.body.lastName
-            );
-            user.save()
-                .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-                .catch(error => res.status(400).json({ error }));
-        }) 
-        .catch(error => res.status(500).json({ error })); 
+ 
+exports.signup = async (req, res, next) => {
+    let email = req.body.email;
+    let password = req.body.password;
+    let lastName = req.body.lastName;
+    let firstName = req.body.firstName;
+    if(!email || !password || !lastName || !firstName){
+        return res.status(401).send({ message: "Tous les champs ne sont pas remplis."});
+    } 
+    User.findOne({ email: req.body.email })
+        .then(user => {
+            console.log(user)
+            if (user) {
+                return res.status(401).json({ error: "utilisateur déjà existant"});
+            }
+            bcrypt.hash(password, 10)
+                .then((hash) => {
+                    let user = new User(
+                        email,
+                        hash,
+                        firstName,
+                        lastName
+                    );
+                    user.save()
+                        .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+                        .catch(error => res.status(400).json({ error }));
+                }) 
+                .catch(error => res.status(500).json({ error })); 
+            })
+        .catch(error => res.status(500).json({ error}));
 };  
   
 

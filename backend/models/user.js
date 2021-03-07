@@ -27,6 +27,23 @@ class User {
             }) 
         })
     }
+
+    static findOneByEmail(email) {
+        return new Promise((resolve, reject) => {
+            db.query("SELECT * FROM user WHERE email = ?", [email], (err, result) => {
+                if (err){
+                    console.log(err)
+                    return reject(err)
+                } 
+                console.log(result)
+                if (result.length === 0){
+                    return resolve(false)
+                }
+                resolve(new User(result[0].email, result[0].password, result[0].first_name, result[0].last_name, result[0].avatar, result[0].id));
+
+            }) 
+        })
+    }
  
     static findOneById(id) {
         return new Promise((resolve, reject) => {
@@ -40,7 +57,7 @@ class User {
 
             }) 
         })
-    }
+    } 
 
     save() {
         return new Promise((resolve, reject) => {
