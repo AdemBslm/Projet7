@@ -13,7 +13,7 @@ import Auth from '../Auth/Auth';
 const schema = yup.object().shape({
     lastName: yup.string().matches(/^[a-zA-Zà-ÿÀ-Ÿ-]+$/,'Ecriture incorrect').required('Veuillez mettre un nom !'),
     firstName: yup.string().matches(/^[a-zA-Zà-ÿÀ-Ÿ-]+$/,'Ecriture incorrect').required('Veuillez mettre un prénom !'),
-    email: yup.string().email().required('Veuillez mettre un email !'),
+    email: yup.string(),//.email().required('Veuillez mettre un email !'),
     password: yup.string().min(6,"Mot de passe trop court !").required('Veuillez mettre un mot de passe !'),
 });
 
@@ -27,6 +27,7 @@ function Inscription({history}){
     });
 
     const [status, setStatus] = useState("")
+    const [statusName, setStatusName] = useState("")
 
     const onSubmit = async data => {
         try{
@@ -35,7 +36,9 @@ function Inscription({history}){
             setIsAuthenticated(responseLogin)
             history.replace('/Posts')
         } catch ({response}){
+            console.log(response)
             setStatus(response.status)
+            setStatusName(response.data.message)
         }
     }
 
@@ -75,11 +78,12 @@ function Inscription({history}){
 
                 <div className="form_champs">
                     <label htmlFor="password">Mot de passe :</label>
-                    <input type="password" id="password" name="password" ref={register}></input>
+                    <input type="texte" id="password" name="password" ref={register}></input>
                 </div>
                 {errors.password && <span role="alert">{errors.password.message}</span>}
 
                 {status === 400 && <p>Adresse mail déjà utilisé.</p>}
+                {status === 401 && <p className='statusName'>{statusName}</p>}
                 <button className="button button-mat button-formulaire">
                     <div className="psuedo-text">s'inscrire</div>
                 </button> 

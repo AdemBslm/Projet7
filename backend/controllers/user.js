@@ -10,12 +10,21 @@ exports.signup = async (req, res, next) => {
     let firstName = req.body.firstName;
     if(!email || !password || !lastName || !firstName){
         return res.status(401).send({ message: "Tous les champs ne sont pas remplis."});
-    } 
+    }
+    const emailVerification = email.split("@");
+    const emailVerificationPoint = emailVerification[1].split(".");
+    const emailRegex =  /^(([^<>()\[\]\.,;:\s@"]+(\.[^<>()\[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    if(emailRegex.test(email) === false || emailVerificationPoint.length !== 2 ){
+        return res.status(401).json({ message: "L'Email n'est pas au bon format. Voici un exemple: exemple@gmail.fr "});
+    }
+    if((password.length >= 8 && password.match( /[A-Z]/g) && password.match(/[a-z]/g) && password.match(/[^a-zA-Z\d]/g)) === null ){
+        return res.status(401).json({ message: "Le mot de passe doit contenir au moins 8 caractères dont au moins 1 lettre majuscule, 1 lettre minuscule et 1 caractère spécial"});
+    }
     User.findOne({ email: req.body.email })
         .then(user => {
             console.log(user)
             if (user) {
-                return res.status(401).json({ error: "utilisateur déjà existant"});
+                return res.status(401).json({ message: "utilisateur déjà existant"});
             }
             bcrypt.hash(password, 10)
                 .then((hash) => {
